@@ -2,7 +2,6 @@ package com.registry.cache;
 
 import com.google.inject.Singleton;
 import com.registry.entities.ResourceName;
-import com.registry.entities.ResourceProperties;
 
 import java.util.HashMap;
 
@@ -12,30 +11,30 @@ import java.util.HashMap;
 @Singleton
 public class Registry {
 
-    private HashMap<ResourceName,ResourceProperties> registeredResources;
+    private HashMap<ResourceName,HashMap<String,String>> registeredResources = new HashMap<>();
 
 
-    public HashMap<ResourceName, ResourceProperties> getRegisteredResources() {
+    public HashMap<ResourceName, HashMap<String,String>> getRegisteredResources() {
         return registeredResources;
     }
 
-    public void setRegisteredResources(HashMap<ResourceName, ResourceProperties> registeredResources) {
+    public void setRegisteredResources(HashMap<ResourceName, HashMap<String,String>> registeredResources) {
         this.registeredResources = registeredResources;
     }
 
-    public ResourceProperties registerNewResource(ResourceName resourceName, ResourceProperties resourceProperties){
+    public HashMap<String,String> registerNewResource(ResourceName resourceName, HashMap<String,String> resourceProperties){
         return registeredResources.put(resourceName,resourceProperties);
     }
 
-    public ResourceProperties getResourceProperties(ResourceName resourceName){
+    public HashMap<String,String> getResourceProperties(ResourceName resourceName){
         return registeredResources.get(resourceName);
     }
 
-    public ResourceProperties updateResourceProperties(ResourceName resourceName, ResourceProperties resourceNewProperties){
+    public HashMap<String,String> updateResourceProperties(ResourceName resourceName, HashMap<String,String> resourceNewProperties){
         return registeredResources.replace(resourceName,resourceNewProperties);
     }
 
-    public ResourceProperties deRegisterResource(ResourceName resourceName){
+    public HashMap<String,String> deRegisterResource(ResourceName resourceName){
         return registeredResources.remove(resourceName);
     }
 

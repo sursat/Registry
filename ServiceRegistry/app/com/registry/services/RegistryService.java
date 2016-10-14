@@ -5,7 +5,6 @@ import com.registry.cache.Registry;
 import com.registry.common.utils.InputParametersChecker;
 import com.registry.common.utils.ResourceNameUtil;
 import com.registry.entities.ResourceName;
-import com.registry.entities.ResourceProperties;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,12 +18,12 @@ public class RegistryService {
     @Inject
     private Registry registry;
 
-    public void registerResource(ResourceName resourceName, ResourceProperties resourceProperties){
+    public void registerResource(ResourceName resourceName, HashMap<String,String> resourceProperties){
         InputParametersChecker.ifNullThrowNullPointerException(resourceName,resourceProperties);
         registry.registerNewResource(resourceName,resourceProperties);
     }
 
-    public List<String> registerMultipleResource(HashMap<String,ResourceProperties> resourcesMap){
+    public List<String> registerMultipleResource(HashMap<String,HashMap<String,String>> resourcesMap){
         InputParametersChecker.ifNullThrowNullPointerException(resourcesMap);
         List<String> invalidResourceNames = new ArrayList<>();
         resourcesMap.forEach((resourceNameStr, resourceProperties) -> {
@@ -42,7 +41,7 @@ public class RegistryService {
         return invalidResourceNames;
     }
 
-    public ResourceProperties getResourceProperties(ResourceName resourceName){
+    public HashMap<String,String> getResourceProperties(ResourceName resourceName){
         InputParametersChecker.ifNullThrowNullPointerException(resourceName);
         return registry.getResourceProperties(resourceName);
     }
@@ -51,7 +50,7 @@ public class RegistryService {
         return registry.isResourceNotRegistered(resourceName);
     }
 
-    public ResourceProperties updateResource(ResourceName resourceName, ResourceProperties resourceNewProperties){
+    public HashMap<String,String> updateResource(ResourceName resourceName, HashMap<String,String> resourceNewProperties){
         InputParametersChecker.ifNullThrowNullPointerException(resourceName,resourceNewProperties);
         if(registry.isResourceNotRegistered(resourceName))
             return null;
@@ -64,7 +63,7 @@ public class RegistryService {
         registry.deRegisterResource(resourceName);
     }
 
-    public HashMap<ResourceName, ResourceProperties> getAllRegisteredResources(){
+    public HashMap<ResourceName, HashMap<String,String>> getAllRegisteredResources(){
         return registry.getRegisteredResources();
     }
 

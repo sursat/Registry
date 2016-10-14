@@ -2,14 +2,15 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
 import com.registry.common.constants.AppConstants;
 import com.registry.common.utils.InputParametersChecker;
 import com.registry.common.utils.ResourceNameUtil;
 import com.registry.entities.ResourceName;
-import com.registry.entities.ResourceProperties;
 import com.registry.services.RegistryService;
 import play.libs.Json;
+import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -36,7 +37,7 @@ public class HomeController extends Controller {
         JsonNode resourcePropertiesJson = request().body().asJson();
         InputParametersChecker.ifNullThrowNullPointerException(resourceNameString,resourcePropertiesJson);
         ResourceName resourceName = ResourceName.valueOf(resourceNameString);
-        ResourceProperties resourceProperties = gson.fromJson(resourcePropertiesJson.toString(), ResourceProperties.class);
+        HashMap<String,String> resourceProperties = gson.fromJson(resourcePropertiesJson.toString(), new TypeToken<HashMap<String, String>>() {}.getType());
         InputParametersChecker.ifNullThrowNullPointerException(resourceName,resourceProperties);
         registryService.registerResource(resourceName,resourceProperties);
         return ok();
@@ -45,7 +46,7 @@ public class HomeController extends Controller {
     public Result registerMultipleResource(){
         JsonNode resourcesMapJson = request().body().asJson();
         InputParametersChecker.ifNullThrowNullPointerException(resourcesMapJson);
-        HashMap<String,ResourceProperties> resourcesMap= gson.fromJson(resourcesMapJson.toString(), HashMap.class);
+        HashMap<String,HashMap<String,String>> resourcesMap= gson.fromJson(resourcesMapJson.toString(), new TypeToken<HashMap<String, HashMap<String,String>>>() {}.getType());
         InputParametersChecker.ifNullThrowNullPointerException(resourcesMap);
         List<String> invalidResourceNamesThatNotRegistered = registryService.registerMultipleResource(resourcesMap);
         return ok(gson.toJson(invalidResourceNamesThatNotRegistered));
@@ -55,14 +56,14 @@ public class HomeController extends Controller {
         if(ResourceNameUtil.isInvalidResourceName(resourceNameString))
             return badRequest();
         ResourceName resourceName = ResourceName.valueOf(resourceNameString);
-        ResourceProperties resourceProperties = registryService.getResourceProperties(resourceName);
+        HashMap<String,String> resourceProperties = registryService.getResourceProperties(resourceName);
         if(resourceProperties == null)
             return notFound();
         return ok(gson.toJson(resourceProperties));
     }
 
     public Result getAllRegisteredResources(){
-        HashMap<ResourceName, ResourceProperties> allRegisteredResources = registryService.getAllRegisteredResources();
+        HashMap<ResourceName, HashMap<String,String>> allRegisteredResources = registryService.getAllRegisteredResources();
         if(allRegisteredResources == null)
             return ok(Json.newObject());
         return ok(gson.toJson(allRegisteredResources));
@@ -74,7 +75,7 @@ public class HomeController extends Controller {
         JsonNode resourcePropertiesJson = request().body().asJson();
         InputParametersChecker.ifNullThrowNullPointerException(resourceNameString,resourcePropertiesJson);
         ResourceName resourceName = ResourceName.valueOf(resourceNameString);
-        ResourceProperties resourceNewProperties = gson.fromJson(resourcePropertiesJson.toString(), ResourceProperties.class);
+        HashMap<String,String> resourceNewProperties = gson.fromJson(resourcePropertiesJson.toString(), new TypeToken<HashMap<String, String>>() {}.getType());
         InputParametersChecker.ifNullThrowNullPointerException(resourceName,resourceNewProperties);
         if(registryService.isResourceNotRegistered(resourceName))
             return notFound();
@@ -93,10 +94,13 @@ public class HomeController extends Controller {
             return ok();
     }
 
+    //@BodyParser over-rides the default behaviour of play to discard DELETE  REST body
+    //This is useful to access DELETE REST call body.
+    @BodyParser.Of(BodyParser.Json.class)
     public Result removeMultipleRegisteredResource(){
         JsonNode resourceNamesListJSON = request().body().asJson();
         InputParametersChecker.ifNullThrowNullPointerException(resourceNamesListJSON);
-        List<String> resourceNamesList = gson.fromJson(resourceNamesListJSON.toString(),ArrayList.class);
+        List<String> resourceNamesList = gson.fromJson(resourceNamesListJSON.toString(),new TypeToken<ArrayList<String>>() {}.getType());
         List<String> resourceNamesThatNotFoundToRemove = registryService.deRegisterMultipleResources(resourceNamesList);
         return ok(gson.toJson(resourceNamesThatNotFoundToRemove));
     }
