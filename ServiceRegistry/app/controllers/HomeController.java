@@ -1,6 +1,7 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
@@ -34,7 +35,9 @@ public class HomeController extends Controller {
     public Result registerResource(String resourceNameString){
         if(ResourceNameUtil.isInvalidResourceName(resourceNameString))
             return badRequest();
-        JsonNode resourcePropertiesJson = request().body().asJson();
+        ObjectNode resourcePropertiesJson = (ObjectNode) request().body().asJson();
+        resourcePropertiesJson.remove("IP");
+        resourcePropertiesJson.put("IP",request().remoteAddress());
         InputParametersChecker.ifNullThrowNullPointerException(resourceNameString,resourcePropertiesJson);
         ResourceName resourceName = ResourceName.valueOf(resourceNameString);
         HashMap<String,String> resourceProperties = gson.fromJson(resourcePropertiesJson.toString(), new TypeToken<HashMap<String, String>>() {}.getType());
