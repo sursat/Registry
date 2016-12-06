@@ -1,0 +1,16 @@
+{
+  "property": {
+    "EmailId": "prasadr@egnaroinc.com",
+    "Password": "prasad",
+    "Alias": "Prasad",
+    "State": "ACCEPT",
+    "ApprovedBy": "prasadr@egnaroinc.com",
+    "Role":"ADMIN"
+  },
+
+  "children": {},
+  "id":"prasadr@egnaroinc.com",
+  "concreteClass": "com.egnaro.automatter.entity.user.User",
+  "createdTime": 0,
+  "modifiedTime": 0
+}
